@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "{{ .Release.Name }}-minio-nfs-pv"
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  capacity:
+    storage: {{ .Values.nfs.storage | default "100Gi" }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - nfsvers=4
+    - hard
+    - intr
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: {{ .Values.nfs.server | quote }}
+    path: {{ .Values.nfs.path | quote }}

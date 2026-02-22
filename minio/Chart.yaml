@@ -1,0 +1,10 @@
+apiVersion: v2
+name: minio
+description: Umbrella Helm Chart for MinIO Standalone on NFS
+version: 1.0.0
+appVersion: "RELEASE.2024-11-21T17-21-54Z"
+
+dependencies:
+  - name: minio
+    version: "5.4.0"
+    repository: "https://charts.min.io/"

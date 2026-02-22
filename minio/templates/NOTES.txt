@@ -1,0 +1,28 @@
+=============================================================
+  MinIO Standalone (NFS-backed) wurde deployed!
+=============================================================
+
+1. Console (Web UI):
+   https://{{ index .Values.minio.consoleIngress.hosts 0 }}
+
+2. S3 API Endpoint:
+   https://{{ index .Values.minio.ingress.hosts 0 }}
+
+3. Credentials:
+   Liegen im Secret "{{ .Values.minio.existingSecret }}" im Namespace "{{ .Release.Namespace }}".
+   Falls noch nicht erstellt:
+
+   kubectl create secret generic {{ .Values.minio.existingSecret }} \
+     --from-literal=rootUser=admin \
+     --from-literal=rootPassword=<DEIN_PASSWORT> \
+     -n {{ .Release.Namespace }}
+
+4. NFS Volume:
+   Server: {{ .Values.nfs.server }}
+   Path:   {{ .Values.nfs.path }}
+
+5. Wichtig: Stelle sicher, dass der NFS-Export-Pfad auf der NAS existiert
+   und die Berechtigungen zu securityContext.runAsUser/runAsGroup passen:
+
+   chown -R 1000:1000 {{ .Values.nfs.path }}
+   chmod -R 775 {{ .Values.nfs.path }}

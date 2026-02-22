@@ -1,0 +1,62 @@
+nfs:
+  server: "192.168.1.100"
+  path: "/volume1/minio"
+  storage: "100Gi"
+
+minio:
+  mode: standalone
+
+  existingSecret: "minio-root-credentials"
+
+  persistence:
+    enabled: true
+    existingClaim: "minio-nfs-pvc"
+
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    path: /
+    hosts:
+      - api.minio.example.com
+    tls:
+      - secretName: minio-api-tls
+        hosts:
+          - api.minio.example.com
+
+  consoleIngress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    path: /
+    hosts:
+      - console.minio.example.com
+    tls:
+      - secretName: minio-console-tls
+        hosts:
+          - console.minio.example.com
+
+  environment:
+    MINIO_BROWSER_REDIRECT_URL: "https://console.minio.example.com"
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  buckets: []
+  postJob:
+    enabled: false
