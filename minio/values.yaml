@@ -60,3 +60,10 @@ minio:
   buckets: []
   postJob:
     enabled: false
+
+# HTTPRoute(s) am geteilten Envoy-Gateway (TASK-336, templates/httproute.yaml). Aus per Default;
+# Werte für prod in helm-values/minio-helm-chart/minio-values.yaml.
+httpRoute:
+  enabled: false
+  parentRef: {}
+  routes: []
