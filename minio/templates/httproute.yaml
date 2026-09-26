@@ -22,11 +22,15 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   parentRefs:
+    {{- /* Liste httpRoute.parentRefs (z. B. übergangsweise an zwei Gateways, TASK-364), sonst die
+         Einzelangabe httpRoute.parentRef wie bisher. */}}
+    {{- range $p := ($.Values.httpRoute.parentRefs | default (list $.Values.httpRoute.parentRef)) }}
     - group: gateway.networking.k8s.io
       kind: Gateway
-      name: {{ required "httpRoute.parentRef.name fehlt" $.Values.httpRoute.parentRef.name }}
-      namespace: {{ required "httpRoute.parentRef.namespace fehlt" $.Values.httpRoute.parentRef.namespace }}
-      sectionName: {{ required "httpRoute.parentRef.sectionName fehlt (sonst umgeht die Route die Umleitung auf https)" $.Values.httpRoute.parentRef.sectionName }}
+      name: {{ required "httpRoute.parentRef(s).name fehlt" $p.name }}
+      namespace: {{ required "httpRoute.parentRef(s).namespace fehlt" $p.namespace }}
+      sectionName: {{ required "httpRoute.parentRef(s).sectionName fehlt (sonst umgeht die Route die Umleitung auf https)" $p.sectionName }}
+    {{- end }}
   hostnames:
     {{- toYaml (required "httpRoute.routes[].hostnames fehlt" $route.hostnames) | nindent 4 }}
   rules:
