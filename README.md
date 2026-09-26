@@ -1,10 +1,31 @@
 # MinIO Umbrella Chart – Standalone on NFS
 
+## Produktion (TASK-355)
+
+- **Release / Namespace:** `minio` / `minio-server`
+- **Produktionswerte:** ausschließlich `helm-values/minio-helm-chart/minio-values.yaml` im Repo
+  `helm-values` (die `values.yaml` hier sind die Chart-Defaults).
+- **Rollout:** aus einem sauberen, committeten Stand beider Repos:
+
+  ```bash
+  python3 ../helm-values/scripts/compare-release.py minio minio-server minio \
+    -f ../helm-values/minio-helm-chart/minio-values.yaml     # erst vergleichen
+  helm upgrade minio minio -n minio-server -f ../helm-values/minio-helm-chart/minio-values.yaml
+  ```
+
+- **Tags:** `prod/r<Revision>` markiert den Commit, aus dem Helm-Revision `<Revision>` ausgerollt
+  wurde (die Tag-Nachricht nennt den `helm-values`-Commit). **Kein `chart-*`-Tag für Rollouts** —
+  der löst `helm-release.yaml` aus und veröffentlicht das Chart nach GHCR.
+
+| Stand | Chart | Nachweis |
+|---|---|---|
+| **Produktion** | siehe `helm list -n minio-server` und den jüngsten Tag `prod/r*` | `compare-release.py` danach: keine Abweichungen |
+
 ## Prerequisites
 
-- Kubernetes cluster with nginx-ingress
+- Kubernetes cluster with Gateway API (HTTPRoute, e.g. Envoy Gateway)
 - NFS share on your NAS (NFSv4)
-- TLS secret(s) already present (Let's Encrypt, managed separately)
+- TLS terminated at the Gateway (managed separately)
 - Namespace created
 
 ## Quick Start
@@ -44,7 +65,7 @@ nfs:
   path: "/minio"      # NFS export path
 ```
 
-As well as the ingress hosts, TLS secrets and `MINIO_BROWSER_REDIRECT_URL` in the `minio:` block.
+As well as `httpRoute` (gateway, hostnames) and `MINIO_BROWSER_REDIRECT_URL` in the `minio:` block.
 
 ### 4. Pull dependencies + install
 
@@ -72,9 +93,8 @@ helm upgrade minio . -n minio -f values.yaml
 │  │              │  │  - Standalone Deployment     │ │
 │  │  NFS ──────────►│  - S3 API Service            │ │
 │  │  PV/PVC      │  │  - Console Service           │ │
-│  │              │  │  - Ingress (API)             │ │
-│  └──────────────┘  │  - ConsoleIngress (Web UI)   │ │
-│                    └──────────────────────────────┘ │
+│  │ httproute    │  │                              │ │
+│  └──────────────┘  └──────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
                          │
            ┌─────────────┼─────────────┐

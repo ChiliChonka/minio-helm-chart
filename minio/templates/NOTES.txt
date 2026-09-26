@@ -2,11 +2,12 @@
   MinIO Standalone (NFS-backed) wurde deployed!
 =============================================================
 
-1. Console (Web UI):
-   https://{{ index .Values.minio.consoleIngress.hosts 0 }}
+1. Erreichbar über die HTTPRoutes (httpRoute.routes):
+{{- range .Values.httpRoute.routes }}
+   {{ .name }}: {{ range .hostnames }}https://{{ . }} {{ end }}
+{{- end }}
 
-2. S3 API Endpoint:
-   https://{{ index .Values.minio.ingress.hosts 0 }}
+2. S3 API im Cluster: http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9000
 
 3. Credentials:
    Liegen im Secret "{{ .Values.minio.existingSecret }}" im Namespace "{{ .Release.Namespace }}".

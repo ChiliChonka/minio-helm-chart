@@ -12,34 +12,8 @@ minio:
     enabled: true
     existingClaim: "minio-nfs-pvc"
 
-  ingress:
-    enabled: true
-    ingressClassName: "nginx"
-    annotations:
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/proxy-buffering: "off"
-      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
-    path: /
-    hosts:
-      - api.minio.example.com
-    tls:
-      - secretName: minio-api-tls
-        hosts:
-          - api.minio.example.com
-
-  consoleIngress:
-    enabled: true
-    ingressClassName: "nginx"
-    annotations:
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/proxy-buffering: "off"
-    path: /
-    hosts:
-      - console.minio.example.com
-    tls:
-      - secretName: minio-console-tls
-        hosts:
-          - console.minio.example.com
+  # Kein ingress/consoleIngress (TASK-355): Der Zugang läuft über die HTTPRoutes unten am
+  # Envoy-Gateway; ingress-nginx ist seit 2026-09-22 abgebaut. Upstream-Default: `enabled: false`.
 
   environment:
     MINIO_BROWSER_REDIRECT_URL: "https://console.minio.example.com"
